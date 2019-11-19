@@ -1,0 +1,27 @@
+{
+  "name": "two-way-bus",
+  "version": "1.0.0",
+  "description": "Asynchronous pub/sub event bus that allows listeners to respond to events directly.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/safrankamate/two-way-bus.git"
+  },
+  "author": {
+    "name": "Mate Safranka",
+    "email": "safranka.mate@gmail.com",
+    "url": "https://github.com/safrankamate"
+  },
+  "license": "MIT",
+  "keywords": [
+    "events",
+    "pub/sub",
+    "channel",
+    "event bus"
+  ],
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "build": "tsc --outDir dist -d --declarationDir types -t esnext -m commonjs src/index.ts",
+    "test": "node test/test"
+  }
+}
