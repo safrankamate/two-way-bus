@@ -20,6 +20,7 @@ export declare class TwoWayBus implements EventEmitter {
     off(eventType: string, listener?: Listener): boolean;
     relayOn(source: EventEmitter, ...events: string[]): void;
     relayOff(source: EventEmitter, ...events: string[]): void;
+    reset(): void;
     emit(eventType: string, data?: any): Promise<void>;
     race<T = any>(eventType: string, data?: any): Promise<T | undefined>;
     all<T = any>(eventType: string, data?: any): Promise<T[]>;

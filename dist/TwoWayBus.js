@@ -79,6 +79,10 @@ class TwoWayBus {
             }
         }
     }
+    reset() {
+        this.listeners = {};
+        this.relays = new WeakMap();
+    }
     async emit(eventType, data) {
         if (!this.listeners[eventType])
             return;
