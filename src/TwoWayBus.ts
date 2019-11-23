@@ -93,6 +93,11 @@ export class TwoWayBus implements EventEmitter {
     }
   }
 
+  reset() {
+    this.listeners = {};
+    this.relays = new WeakMap();
+  }
+
   async emit(eventType: string, data?: any) {
     if (!this.listeners[eventType]) return;
     await Promise.resolve();
