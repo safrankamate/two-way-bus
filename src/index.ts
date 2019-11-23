@@ -1,1 +1,1 @@
-export { TwoWayBus } from './TwoWayBus';
+export { TwoWayBus, TwoWayEvent } from './TwoWayBus';

@@ -46,11 +46,18 @@ class TwoWayBus {
     relayOn(source, ...events) {
         const listeners = this.relays.get(source) || {};
         for (const eventType of events) {
-            const listener = event => {
+            const listener = async (event) => {
                 const data = event instanceof TwoWayEvent ? event.data : event;
-                return ((event.mode === 'all' && this.all(eventType, data)) ||
-                    (event.mode === 'race' && this.race(eventType, data)) ||
-                    this.emit(eventType, data));
+                if (event.mode === 'all') {
+                    const results = await this.all(eventType, data);
+                    return { __relay: true, results };
+                }
+                else if (event.mode === 'race') {
+                    return this.race(eventType, data);
+                }
+                else {
+                    this.emit(eventType, data);
+                }
             };
             listeners[eventType] = listener;
             source.on(eventType, listener);
@@ -91,7 +98,17 @@ class TwoWayBus {
         if (!this.listeners[eventType])
             return Promise.resolve([]);
         const event = new TwoWayEvent(eventType, 'all', data);
-        return Promise.all(this.runListeners(event));
+        const results = await Promise.all(this.runListeners(event));
+        const result = [];
+        for (const item of results) {
+            if (typeof item === 'object' && item && '__relay' in item) {
+                result.push(...item.results);
+            }
+            else {
+                result.push(item);
+            }
+        }
+        return result;
     }
     runListeners(event) {
         return this.listeners[event.type].map(listener => {

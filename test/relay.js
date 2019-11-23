@@ -31,10 +31,11 @@ module.exports = [
     const filter = new TwoWayBus();
     filter.relayOn(source, 'roll-call');
     filter.on('roll-call', () => 'John');
+    filter.on('roll-call', () => 'Jackie');
     source.on('roll-call', () => 'Jane');
 
     const results = await source.all('roll-call');
-    assert(results.sort().join(',') === 'Jane,John');
+    assert(results.sort().join(',') === 'Jackie,Jane,John');
   },
   async (ok, error, assert) => {
     const source = new TwoWayBus();

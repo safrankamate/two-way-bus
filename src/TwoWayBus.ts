@@ -1,6 +1,11 @@
 type Listener = (event: TwoWayEvent) => any;
 type Batch = { [eventType: string]: Listener };
 
+interface RelayResult<T> {
+  __relay: boolean;
+  results: T[];
+}
+
 interface EventEmitter {
   on(eventType: string, listener: (event: any) => void): void;
   off(eventType: string, listener: (event: any) => void): void;
@@ -55,13 +60,16 @@ export class TwoWayBus implements EventEmitter {
   relayOn(source: EventEmitter, ...events: string[]) {
     const listeners = this.relays.get(source) || {};
     for (const eventType of events) {
-      const listener: Listener = event => {
+      const listener: Listener = async event => {
         const data = event instanceof TwoWayEvent ? event.data : event;
-        return (
-          (event.mode === 'all' && this.all(eventType, data)) ||
-          (event.mode === 'race' && this.race(eventType, data)) ||
-          this.emit(eventType, data)
-        );
+        if (event.mode === 'all') {
+          const results = await this.all(eventType, data);
+          return { __relay: true, results };
+        } else if (event.mode === 'race') {
+          return this.race(eventType, data);
+        } else {
+          this.emit(eventType, data);
+        }
       };
       listeners[eventType] = listener;
       source.on(eventType, listener);
@@ -106,7 +114,18 @@ export class TwoWayBus implements EventEmitter {
     if (!this.listeners[eventType]) return Promise.resolve([]);
 
     const event = new TwoWayEvent(eventType, 'all', data);
-    return Promise.all(this.runListeners<T>(event));
+    const results = await Promise.all(
+      this.runListeners<T | RelayResult<T>>(event),
+    );
+    const result = [];
+    for (const item of results) {
+      if (typeof item === 'object' && item && '__relay' in item) {
+        result.push(...item.results);
+      } else {
+        result.push(item);
+      }
+    }
+    return result;
   }
 
   private runListeners<T = any>(event: TwoWayEvent): Promise<T>[] {
