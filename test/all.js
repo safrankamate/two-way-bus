@@ -33,7 +33,5 @@ module.exports = [
 ];
 
 function compareResults(assert, received, expected) {
-  expected.sort();
-  received.sort();
-  assert(received.map((value, i) => value === expected[i]).every(Boolean));
+  assert(expected.sort().join(',') === received.sort().join(','));
 }

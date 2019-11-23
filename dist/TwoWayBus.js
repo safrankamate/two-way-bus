@@ -48,7 +48,9 @@ class TwoWayBus {
         for (const eventType of events) {
             const listener = event => {
                 const data = event instanceof TwoWayEvent ? event.data : event;
-                this.emit(eventType, data);
+                return ((event.mode === 'all' && this.all(eventType, data)) ||
+                    (event.mode === 'race' && this.race(eventType, data)) ||
+                    this.emit(eventType, data));
             };
             listeners[eventType] = listener;
             source.on(eventType, listener);

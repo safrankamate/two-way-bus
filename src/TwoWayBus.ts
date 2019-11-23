@@ -57,7 +57,11 @@ export class TwoWayBus implements EventEmitter {
     for (const eventType of events) {
       const listener: Listener = event => {
         const data = event instanceof TwoWayEvent ? event.data : event;
-        this.emit(eventType, data);
+        return (
+          (event.mode === 'all' && this.all(eventType, data)) ||
+          (event.mode === 'race' && this.race(eventType, data)) ||
+          this.emit(eventType, data)
+        );
       };
       listeners[eventType] = listener;
       source.on(eventType, listener);

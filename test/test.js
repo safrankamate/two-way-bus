@@ -1,4 +1,4 @@
-const ALL_SUITES = ['emit', 'all', 'race'];
+const ALL_SUITES = ['emit', 'all', 'race', 'relay'];
 
 const suites = process.argv.slice(2);
 const toRun =
